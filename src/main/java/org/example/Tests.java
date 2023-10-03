@@ -1,13 +1,12 @@
 package org.example;
 
+import org.example.actions.CycleActions;
+import org.example.actions.MapInitActions;
 import org.example.entities.*;
 
 public class Tests {
     public static void main(String[] args) {
-        Map map = new Map();
-        map.setUp();
-        new MapConsoleRenderer().printMap(map);
-        TargetFinder targetFinder = new TargetFinder(map, new Coordinates(1, 1));
-        System.out.println(targetFinder.getTargetCoordinate(new MouseFood()));
+        Simulation simulation = new Simulation(new Map());
+        simulation.startSimulation();
     }
 }

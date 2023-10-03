@@ -4,10 +4,7 @@ import org.example.Coordinates;
 
 abstract public class Entity {
 
-
-
-
-
-    public abstract void setCoordinates(Coordinates coordinates);
+    public Entity() {
+    }
     public abstract String getIcon();
 }
