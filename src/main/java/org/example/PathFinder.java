@@ -7,10 +7,10 @@ public class PathFinder {
     private final Coordinates startCoordinate;
     private final Coordinates targetCoordinate;
 
-    public PathFinder(Map map, Coordinates startCoordinate, Coordinates targetCoordinate) {
+    public PathFinder(Map map, Coordinates from, Coordinates to) {
         this.map = map;
-        this.startCoordinate = startCoordinate;
-        this.targetCoordinate = targetCoordinate;
+        this.startCoordinate = from;
+        this.targetCoordinate = to;
     }
 
     public List<Coordinates> getPath()
@@ -19,30 +19,34 @@ public class PathFinder {
         Set<Coordinates> visitedCoordinates = new HashSet<>();
         path.push(startCoordinate);
         visitedCoordinates.add(startCoordinate);
-        while (!path.peek().equals(targetCoordinate))
+        while (!path.isEmpty() && !path.peek().equals(targetCoordinate))
         {
-            path.push(chooseCheapestNeighbour(path.peek()));
-            if (!visitedCoordinates.add(path.peek()))
+            Coordinates nextCoordinate = chooseCheapestNeighbour(path.peek());
+            if (visitedCoordinates.add(nextCoordinate))
             {
-                path.pop();
+                path.push(nextCoordinate);
+            }
+            else
+            {
+                break;
             }
         }
         return path;
     }
-    private Coordinates chooseCheapestNeighbour(Coordinates coordinate)
+    private Coordinates chooseCheapestNeighbour(Coordinates node)
     {
-        List<Coordinates> neighbours = new ArrayList<>(map.getNeighbours(coordinate));
-        int minWeight = Integer.MAX_VALUE;
-        Coordinates cheapestNeighbour = null;
+        List<Coordinates> neighbours = new ArrayList<>(MapUtil.getNeighbours(node, map.getWidth(), map.getLength()));
+        int minNodeWeight = Integer.MAX_VALUE;
+        Coordinates cheapestNeighbour = node;
 
         for (Coordinates neighbour : neighbours)
         {
-            if (map.simulationMap.get(neighbour) == null || neighbour.equals(targetCoordinate))
+            if (map.getEntity(neighbour) == null || neighbour.equals(targetCoordinate))
             {
                 int weight = evaluateCoordinate(neighbour);
-                if (weight < minWeight)
+                if (weight < minNodeWeight)
                 {
-                    minWeight = weight;
+                    minNodeWeight = weight;
                     cheapestNeighbour = neighbour;
                 }
             }
@@ -52,7 +56,7 @@ public class PathFinder {
 
     private int evaluateCoordinate(Coordinates coordinate)
     {
-       return map.countStepsBetweenCoordinates(coordinate, startCoordinate) +
-               map.countStepsBetweenCoordinates(coordinate, targetCoordinate) * 10;
+       return MapUtil.countStepsBetweenCoordinates(startCoordinate, coordinate) +
+               MapUtil.countStepsBetweenCoordinates(coordinate, targetCoordinate) * 10;
     }
 }

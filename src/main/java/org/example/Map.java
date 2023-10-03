@@ -1,55 +1,63 @@
 package org.example;
 
 import org.example.entities.Entity;
+import org.example.factories.EntityFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Random;
 
 public class Map {
-    public final int WIDTH = 10;
-    public final int LENGTH = 10;
-    public HashMap<Coordinates, Entity> simulationMap = new HashMap<>();
+    private final int width = 25;
+    private final int length = 25;
+    private final HashMap<Coordinates, Entity> simulationMap = new HashMap<>();
 
-    public void setEntity(Coordinates coordinates, Entity entity) {
-        entity.setCoordinates(coordinates);
-        simulationMap.put(coordinates, entity);
+    public int getWidth() {
+        return width;
     }
-    public void setUp()
-    {
-        InitActions init = new InitActions(this, new EntityFactory());
-        init.initMap();
-        init.setUpDefaultEntities();
-    }
-    public List<Coordinates> getNeighbours(Coordinates coordinate)
-    {
-        int x = coordinate.x();
-        int y = coordinate.y();
-        int[][] allPossibleCoordinates = {{x + 1, y}, {x + 1, y + 1}, {x + 1,  y - 1}, {x - 1, y}, {x - 1, y - 1},
-                {x - 1, y + 1}, {x, y + 1}, {x, y - 1}};
-        List<Coordinates> neighbours = new ArrayList<>();
 
-        for (int[] possibleCoordinate : allPossibleCoordinates) {
-            Coordinates neighbourCoordinate = new Coordinates(possibleCoordinate[0], possibleCoordinate[1]);
-            if (simulationMap.containsKey(neighbourCoordinate))
+    public int getLength() {
+        return length;
+    }
+
+    public void setEntity(Coordinates coordinate, Entity entity) {
+        simulationMap.put(coordinate, entity);
+    }
+    public void setEntity(int x, int y, Entity entity) {
+        Coordinates coordinate = new Coordinates(x, y);
+        simulationMap.put(coordinate, entity);
+    }
+    public Entity getEntity(int x, int y)
+    {
+        return simulationMap.get(new Coordinates(x, y));
+    }
+    public Entity getEntity(Coordinates coordinate)
+    {
+        return simulationMap.get(coordinate);
+    }
+    public void setEntityOnToRandomPlace(EntityFactory entityFactory)
+    {
+        final Random random = new Random();
+        boolean isChosenCellEmpty = false;
+        while (!isChosenCellEmpty)
+        {
+            int x = random.nextInt(1, width + 1);
+            int y = random.nextInt(1, length + 1);
+            if (this.getEntity(x, y) == null)
             {
-                neighbours.add(neighbourCoordinate);
+                isChosenCellEmpty = true;
+                Entity entity = entityFactory.createEntity(x, y);
+                this.setEntity(x, y, entity);
             }
         }
-        return neighbours;
     }
-    public int countStepsBetweenCoordinates(Coordinates coordinateOne, Coordinates coordinateTwo) {
-        int stepsCount = 0;
-        int xDifference = Math.abs(coordinateOne.x() - coordinateTwo.x());
-        int yDifference = Math.abs(coordinateOne.y() - coordinateTwo.y());
-        while (yDifference > 0 || xDifference > 0)
-        {
-            int xFactor = Integer.compare(xDifference, 0);
-            int yFactor = Integer.compare(yDifference, 0);
-            xDifference -= xFactor;
-            yDifference -= yFactor;
-            stepsCount ++;
+    public boolean containsEntityClass(String entityClassName)
+    {
+        for (Entity value : simulationMap.values()) {
+            if (value!= null && value.getClass().getSimpleName().equalsIgnoreCase(entityClassName))
+            {
+                return true;
+            }
         }
-        return stepsCount;
+        return false;
     }
 }

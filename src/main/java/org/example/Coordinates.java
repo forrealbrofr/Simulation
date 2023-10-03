@@ -16,6 +16,4 @@ public record Coordinates(Integer x, Integer y) {
         if (!x.equals(that.x)) return false;
         return y.equals(that.y);
     }
-
-
 }
